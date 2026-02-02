@@ -31,10 +31,10 @@ var (
 )
 
 var (
-	cfgFile     string
-	listenAddr  string
+	cfgFile      string
+	listenAddr   string
 	upstreamAddr string
-	logLevel    string
+	logLevel     string
 )
 
 func main() {

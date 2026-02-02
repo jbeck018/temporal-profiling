@@ -153,8 +153,8 @@ type ProfileEvent struct {
 	WorkerHost string `json:"worker_host,omitempty"`
 
 	// Additional context
-	Attempt       int32 `json:"attempt,omitempty"`
-	MaxAttempts   int32 `json:"max_attempts,omitempty"`
+	Attempt                 int32         `json:"attempt,omitempty"`
+	MaxAttempts             int32         `json:"max_attempts,omitempty"`
 	ScheduleToStartDuration time.Duration `json:"schedule_to_start_duration_ns,omitempty"`
 	StartToCloseDuration    time.Duration `json:"start_to_close_duration_ns,omitempty"`
 }

@@ -59,8 +59,8 @@ func (s *Server) Start(ctx context.Context) error {
 	// Connect to upstream Temporal server
 	upstreamOpts := []grpc.DialOption{
 		grpc.WithDefaultCallOptions(
-			grpc.MaxCallRecvMsgSize(100 * 1024 * 1024), // 100MB
-			grpc.MaxCallSendMsgSize(100 * 1024 * 1024), // 100MB
+			grpc.MaxCallRecvMsgSize(100*1024*1024), // 100MB
+			grpc.MaxCallSendMsgSize(100*1024*1024), // 100MB
 		),
 	}
 

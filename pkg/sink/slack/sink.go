@@ -127,7 +127,7 @@ type Sink struct {
 	mu         sync.RWMutex
 
 	// Rate limiting
-	lastAlert time.Time
+	lastAlert  time.Time
 	alertCount int
 }
 
