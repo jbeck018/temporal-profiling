@@ -6,7 +6,7 @@ version: '3.8'
 services:
   # Temporal Server (with auto-setup)
   temporal:
-    image: temporalio/auto-setup:latest
+    image: temporalio/auto-setup:1.26.2
     ports:
       - "7233:7233"  # gRPC
       - "8088:8088"  # Web UI
@@ -42,7 +42,7 @@ services:
 
   # Temporal Web UI
   temporal-ui:
-    image: temporalio/ui:latest
+    image: temporalio/ui:2.35.0
     ports:
       - "8080:8080"
     environment:
@@ -80,7 +80,7 @@ services:
 
   # OpenTelemetry Collector
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:latest
+    image: otel/opentelemetry-collector-contrib:0.115.0
     command: ["--config=/etc/otel/config.yaml"]
     volumes:
       - ./otel-collector-config.yaml:/etc/otel/config.yaml:ro
@@ -93,7 +93,7 @@ services:
 
   # Jaeger for distributed tracing
   jaeger:
-    image: jaegertracing/all-in-one:latest
+    image: jaegertracing/all-in-one:1.65.0
     ports:
       - "16686:16686" # Jaeger UI
       - "14268:14268" # Jaeger collector HTTP
@@ -104,7 +104,7 @@ services:
 
   # Prometheus for metrics
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.55.1
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
@@ -119,7 +119,7 @@ services:
 
   # Grafana for dashboards
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.4.0
     ports:
       - "3000:3000"
     environment:

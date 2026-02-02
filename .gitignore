@@ -56,7 +56,7 @@ tmp/
 
 # Node modules (for TypeScript examples)
 node_modules/
-package-lock.json
+# Note: package-lock.json is tracked for security and reproducibility
 yarn.lock
 
 # Python
