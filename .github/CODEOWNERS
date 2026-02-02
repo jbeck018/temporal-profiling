@@ -1,0 +1,13 @@
+# Default owners for everything
+*       @jbeck018
+
+# Deployment configurations
+/deploy/        @jbeck018
+/.github/       @jbeck018
+
+# Go code
+/cmd/           @jbeck018
+/pkg/           @jbeck018
+/internal/      @jbeck018
+go.mod          @jbeck018
+go.sum          @jbeck018

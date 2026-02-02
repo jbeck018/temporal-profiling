@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: temporal-profiler
+  namespace: temporal-profiler
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: temporal-profiler
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow gRPC from any namespace with temporal worker label
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              temporal.io/role: worker
+        - podSelector:
+            matchLabels:
+              temporal.io/client: "true"
+      ports:
+        - protocol: TCP
+          port: 7234
+    # Allow metrics scraping from monitoring namespace
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress:
+    # Allow connection to Temporal server
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: temporal
+      ports:
+        - protocol: TCP
+          port: 7233
+    # Allow connection to OTEL collector
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 4317
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow Slack webhook (HTTPS)
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+      ports:
+        - protocol: TCP
+          port: 443

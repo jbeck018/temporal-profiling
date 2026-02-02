@@ -1,0 +1,197 @@
+# Default values for temporal-profiler
+
+replicaCount: 2
+
+image:
+  repository: ghcr.io/temporal-profiling/temporal-profiler
+  pullPolicy: IfNotPresent
+  tag: ""  # Defaults to Chart.appVersion
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automountServiceAccountToken: false
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+  prometheus.io/path: "/metrics"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# Temporal Profiler configuration
+config:
+  proxy:
+    listenAddr: ":7234"
+    upstreamAddr: "temporal-frontend:7233"
+    tls:
+      enabled: false
+      certFile: "/certs/tls.crt"
+      keyFile: "/certs/tls.key"
+      caFile: "/certs/ca.crt"
+
+  profiler:
+    bufferSize: 10000
+    batchSize: 100
+    flushInterval: "5s"
+    workerCount: 2
+
+  sampling:
+    enabled: false
+    rate: 1.0
+    strategy: "probabilistic"
+
+  sinks:
+    otel:
+      enabled: true
+      endpoint: "otel-collector:4317"
+      protocol: "grpc"
+      resourceAttributes:
+        service.name: "temporal-profiler"
+      metrics:
+        enabled: true
+        exportInterval: "10s"
+      traces:
+        enabled: true
+
+    slack:
+      enabled: false
+      alerts:
+        - name: "workflow_failed"
+          condition: "event_type == WORKFLOW_FAILED"
+          severity: "error"
+        - name: "slow_workflow"
+          condition: "workflow_duration > 30s"
+          severity: "warning"
+      rateLimit:
+        maxPerMinute: 10
+        cooldown: "5m"
+
+    file:
+      enabled: false
+      path: "/var/log/temporal-profiler/events.jsonl"
+
+    webhook:
+      enabled: false
+
+  logging:
+    level: "info"
+    format: "json"
+
+  admin:
+    enabled: true
+    addr: ":8080"
+
+# Secrets configuration
+secrets:
+  create: false
+  slackWebhookUrl: ""
+  tls:
+    create: false
+    cert: ""
+    key: ""
+    ca: ""
+
+# Use existing secrets instead
+existingSecrets:
+  credentials: ""
+  tls: ""
+
+service:
+  type: ClusterIP
+  grpcPort: 7234
+  adminPort: 8080
+  annotations: {}
+
+headlessService:
+  enabled: true
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: temporal-profiler.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: temporal-profiler
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []
+
+serviceMonitor:
+  enabled: false
+  namespace: ""
+  interval: 15s
+  scrapeTimeout: 10s
+  labels: {}
+
+prometheusRule:
+  enabled: false
+  namespace: ""
+  labels: {}
+
+extraEnv: []
+extraVolumes: []
+extraVolumeMounts: []
+initContainers: []
+sidecars: []

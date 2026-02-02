@@ -1,0 +1,43 @@
+{
+  "serviceName": "temporal-profiler",
+  "cluster": "temporal-cluster",
+  "taskDefinition": "temporal-profiler:1",
+  "desiredCount": 2,
+  "launchType": "FARGATE",
+  "platformVersion": "LATEST",
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "subnets": ["${SUBNET_1}", "${SUBNET_2}"],
+      "securityGroups": ["${SECURITY_GROUP_ID}"],
+      "assignPublicIp": "DISABLED"
+    }
+  },
+  "loadBalancers": [
+    {
+      "targetGroupArn": "${TARGET_GROUP_ARN}",
+      "containerName": "temporal-profiler",
+      "containerPort": 7234
+    }
+  ],
+  "serviceRegistries": [
+    {
+      "registryArn": "${SERVICE_DISCOVERY_ARN}"
+    }
+  ],
+  "deploymentConfiguration": {
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 100,
+    "deploymentCircuitBreaker": {
+      "enable": true,
+      "rollback": true
+    }
+  },
+  "enableExecuteCommand": true,
+  "propagateTags": "SERVICE",
+  "tags": [
+    {
+      "key": "Application",
+      "value": "temporal-profiler"
+    }
+  ]
+}

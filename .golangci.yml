@@ -1,0 +1,13 @@
+# golangci-lint configuration
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: standard
+
+issues:
+  exclude-dirs:
+    - examples
+    - vendor

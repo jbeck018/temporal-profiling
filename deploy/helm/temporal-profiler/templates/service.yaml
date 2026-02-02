@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "temporal-profiler.fullname" . }}
+  labels:
+    {{- include "temporal-profiler.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: grpc-proxy
+      port: {{ .Values.service.grpcPort }}
+      targetPort: grpc-proxy
+      protocol: TCP
+    - name: http-admin
+      port: {{ .Values.service.adminPort }}
+      targetPort: http-admin
+      protocol: TCP
+  selector:
+    {{- include "temporal-profiler.selectorLabels" . | nindent 4 }}
+{{- if .Values.headlessService.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "temporal-profiler.fullname" . }}-headless
+  labels:
+    {{- include "temporal-profiler.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: grpc-proxy
+      port: {{ .Values.service.grpcPort }}
+      targetPort: grpc-proxy
+  selector:
+    {{- include "temporal-profiler.selectorLabels" . | nindent 4 }}
+{{- end }}

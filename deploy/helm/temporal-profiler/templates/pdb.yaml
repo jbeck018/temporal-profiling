@@ -1,0 +1,13 @@
+{{- if .Values.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "temporal-profiler.fullname" . }}
+  labels:
+    {{- include "temporal-profiler.labels" . | nindent 4 }}
+spec:
+  minAvailable: {{ .Values.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "temporal-profiler.selectorLabels" . | nindent 6 }}
+{{- end }}

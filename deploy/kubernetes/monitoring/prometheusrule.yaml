@@ -1,0 +1,64 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: temporal-profiler-alerts
+  labels:
+    app.kubernetes.io/name: temporal-profiler
+    release: prometheus
+spec:
+  groups:
+    - name: temporal-profiler
+      rules:
+        - alert: TemporalProfilerDown
+          expr: up{job=~".*temporal-profiler.*"} == 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Temporal Profiler is down"
+            description: "Temporal Profiler {{ $labels.instance }} has been down for more than 1 minute."
+
+        - alert: TemporalProfilerHighBufferUsage
+          expr: temporal_profiler_buffer_size / temporal_profiler_buffer_capacity > 0.8
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporal Profiler buffer usage high"
+            description: "Buffer usage is above 80% for 5 minutes. Consider scaling up or increasing buffer size."
+
+        - alert: TemporalProfilerEventsDropped
+          expr: rate(temporal_profiler_events_dropped_total[5m]) > 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporal Profiler dropping events"
+            description: "Events are being dropped due to buffer overflow. Scale up or increase buffer size."
+
+        - alert: TemporalProfilerHighLatency
+          expr: histogram_quantile(0.99, rate(temporal_profiler_proxy_latency_seconds_bucket[5m])) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporal Profiler high latency"
+            description: "P99 proxy latency is above 100ms."
+
+        - alert: TemporalProfilerHighErrorRate
+          expr: rate(temporal_profiler_errors_total[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporal Profiler high error rate"
+            description: "Error rate is above 0.1/s for 5 minutes."
+
+        - alert: TemporalProfilerSinkFailure
+          expr: temporal_profiler_sink_errors_total > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporal Profiler sink errors"
+            description: "Sink {{ $labels.sink }} is experiencing errors."

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: temporal-profiler
+  labels:
+    app.kubernetes.io/name: temporal-profiler
+    app.kubernetes.io/component: profiling

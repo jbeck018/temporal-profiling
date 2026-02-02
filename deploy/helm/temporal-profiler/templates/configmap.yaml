@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "temporal-profiler.fullname" . }}
+  labels:
+    {{- include "temporal-profiler.labels" . | nindent 4 }}
+data:
+  temporal-profiler.yaml: |
+    proxy:
+      listen_addr: "{{ .Values.config.proxy.listenAddr }}"
+      upstream_addr: "{{ .Values.config.proxy.upstreamAddr }}"
+      tls:
+        enabled: {{ .Values.config.proxy.tls.enabled }}
+        {{- if .Values.config.proxy.tls.enabled }}
+        cert_file: "{{ .Values.config.proxy.tls.certFile }}"
+        key_file: "{{ .Values.config.proxy.tls.keyFile }}"
+        ca_file: "{{ .Values.config.proxy.tls.caFile }}"
+        {{- end }}
+
+    profiler:
+      buffer_size: {{ .Values.config.profiler.bufferSize }}
+      batch_size: {{ .Values.config.profiler.batchSize }}
+      flush_interval: "{{ .Values.config.profiler.flushInterval }}"
+      worker_count: {{ .Values.config.profiler.workerCount }}
+
+    sampling:
+      enabled: {{ .Values.config.sampling.enabled }}
+      rate: {{ .Values.config.sampling.rate }}
+      strategy: "{{ .Values.config.sampling.strategy }}"
+
+    sinks:
+      otel:
+        enabled: {{ .Values.config.sinks.otel.enabled }}
+        endpoint: "{{ .Values.config.sinks.otel.endpoint }}"
+        protocol: "{{ .Values.config.sinks.otel.protocol }}"
+        resource_attributes:
+          {{- toYaml .Values.config.sinks.otel.resourceAttributes | nindent 10 }}
+        metrics:
+          enabled: {{ .Values.config.sinks.otel.metrics.enabled }}
+          export_interval: "{{ .Values.config.sinks.otel.metrics.exportInterval }}"
+        traces:
+          enabled: {{ .Values.config.sinks.otel.traces.enabled }}
+
+      slack:
+        enabled: {{ .Values.config.sinks.slack.enabled }}
+        {{- if .Values.config.sinks.slack.enabled }}
+        alerts:
+          {{- toYaml .Values.config.sinks.slack.alerts | nindent 10 }}
+        rate_limit:
+          max_per_minute: {{ .Values.config.sinks.slack.rateLimit.maxPerMinute }}
+          cooldown: "{{ .Values.config.sinks.slack.rateLimit.cooldown }}"
+        {{- end }}
+
+      file:
+        enabled: {{ .Values.config.sinks.file.enabled }}
+        {{- if .Values.config.sinks.file.enabled }}
+        path: "{{ .Values.config.sinks.file.path }}"
+        {{- end }}
+
+      webhook:
+        enabled: {{ .Values.config.sinks.webhook.enabled }}
+
+    logging:
+      level: "{{ .Values.config.logging.level }}"
+      format: "{{ .Values.config.logging.format }}"
+
+    admin:
+      enabled: {{ .Values.config.admin.enabled }}
+      addr: "{{ .Values.config.admin.addr }}"

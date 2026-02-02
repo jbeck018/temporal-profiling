@@ -1,0 +1,99 @@
+{
+  "family": "temporal-profiler",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "512",
+  "memory": "1024",
+  "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/temporal-profiler-task-role",
+  "containerDefinitions": [
+    {
+      "name": "temporal-profiler",
+      "image": "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/temporal-profiler:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 7234,
+          "protocol": "tcp",
+          "name": "grpc-proxy"
+        },
+        {
+          "containerPort": 8080,
+          "protocol": "tcp",
+          "name": "http-admin"
+        }
+      ],
+      "environment": [
+        {
+          "name": "TEMPORAL_PROFILER_PROXY_LISTEN_ADDR",
+          "value": ":7234"
+        },
+        {
+          "name": "TEMPORAL_PROFILER_PROXY_UPSTREAM_ADDR",
+          "value": "temporal.internal:7233"
+        },
+        {
+          "name": "TEMPORAL_PROFILER_SINKS_OTEL_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "TEMPORAL_PROFILER_SINKS_OTEL_ENDPOINT",
+          "value": "otel-collector.internal:4317"
+        },
+        {
+          "name": "TEMPORAL_PROFILER_ADMIN_ENABLED",
+          "value": "true"
+        },
+        {
+          "name": "TEMPORAL_PROFILER_LOGGING_LEVEL",
+          "value": "info"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "TEMPORAL_PROFILER_SINKS_SLACK_WEBHOOK_URL",
+          "valueFrom": "arn:aws:secretsmanager:${AWS_REGION}:${AWS_ACCOUNT_ID}:secret:temporal-profiler/slack-webhook"
+        }
+      ],
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -q -O - http://localhost:8080/ready || exit 1"],
+        "interval": 10,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/temporal-profiler",
+          "awslogs-region": "${AWS_REGION}",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "readonlyRootFilesystem": true,
+      "mountPoints": [
+        {
+          "sourceVolume": "tmp",
+          "containerPath": "/tmp"
+        }
+      ]
+    }
+  ],
+  "volumes": [
+    {
+      "name": "tmp",
+      "host": {}
+    }
+  ],
+  "tags": [
+    {
+      "key": "Application",
+      "value": "temporal-profiler"
+    },
+    {
+      "key": "Environment",
+      "value": "production"
+    }
+  ]
+}

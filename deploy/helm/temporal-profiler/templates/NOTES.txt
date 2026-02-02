@@ -1,0 +1,49 @@
+Temporal Profiler has been deployed!
+
+{{- if .Values.ingress.enabled }}
+The profiler is accessible via ingress at:
+{{- range $host := .Values.ingress.hosts }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}
+{{- end }}
+{{- else }}
+To access the profiler from your cluster, use:
+  - gRPC Proxy: {{ include "temporal-profiler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.grpcPort }}
+  - Admin/Metrics: {{ include "temporal-profiler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.adminPort }}
+{{- end }}
+
+SDK Configuration:
+Point your Temporal SDK to the profiler instead of the Temporal server:
+
+  Go:
+    client.Dial(client.Options{
+        HostPort: "{{ include "temporal-profiler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.grpcPort }}",
+    })
+
+  TypeScript:
+    await Connection.connect({
+        address: '{{ include "temporal-profiler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.grpcPort }}',
+    });
+
+  Python:
+    await Client.connect("{{ include "temporal-profiler.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.grpcPort }}")
+
+Endpoints:
+  - Health:  /health
+  - Ready:   /ready
+  - Metrics: /metrics (Prometheus format)
+  - Stats:   /stats (JSON)
+
+{{- if .Values.config.sinks.otel.enabled }}
+
+OTEL Export:
+  Traces and metrics are being exported to: {{ .Values.config.sinks.otel.endpoint }}
+{{- end }}
+
+{{- if .Values.config.sinks.slack.enabled }}
+
+Slack Alerts:
+  Alerts are configured and will be sent for configured conditions.
+  Make sure you've set the Slack webhook URL in the secret.
+{{- end }}
+
+For more information, visit: https://github.com/temporal-profiling/temporal-profiler

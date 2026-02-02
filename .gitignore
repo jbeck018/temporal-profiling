@@ -1,0 +1,68 @@
+# Binaries
+/temporal-profiler
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/dist/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+coverage.html
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local config files
+temporal-profiler.yaml
+temporal-profiler.yml
+*.local.yaml
+*.local.yml
+
+# Log files
+*.log
+/logs/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+/build/
+/bin/
+
+# Air (hot reload)
+tmp/
+.air.toml
+
+# Kubernetes secrets
+*-secret.yaml
+
+# Node modules (for TypeScript examples)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+.venv/
