@@ -1,5 +1,5 @@
 # Binaries
-temporal-profiler
+/temporal-profiler
 *.exe
 *.exe~
 *.dll

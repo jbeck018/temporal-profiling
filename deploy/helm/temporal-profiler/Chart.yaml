@@ -1,0 +1,24 @@
+apiVersion: v2
+name: temporal-profiler
+description: A Helm chart for Temporal Profiler - gRPC proxy for Temporal.io profiling with OTEL and Slack integration
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - temporal
+  - profiling
+  - observability
+  - grpc
+  - proxy
+  - opentelemetry
+  - otel
+maintainers:
+  - name: Temporal Profiler Team
+    email: support@temporal-profiler.io
+home: https://github.com/temporal-profiling/temporal-profiler
+sources:
+  - https://github.com/temporal-profiling/temporal-profiler
+icon: https://temporal.io/favicon.ico
+annotations:
+  artifacthub.io/license: MIT
+  artifacthub.io/category: monitoring-logging
