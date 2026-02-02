@@ -1,6 +1,6 @@
 module github.com/temporal-profiling/temporal-profiler
 
-go 1.23
+go 1.25.6
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect
