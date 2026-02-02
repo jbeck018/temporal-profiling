@@ -1,2 +1,3 @@
 # Python SDK requirements for Temporal Profiler example
-temporalio>=1.5.0
+# Pinned versions for security and reproducibility
+temporalio==1.10.0

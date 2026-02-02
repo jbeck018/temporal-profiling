@@ -35,3 +35,27 @@ updates:
       - "docker"
     commit-message:
       prefix: "deps(docker)"
+
+  # npm (TypeScript SDK example)
+  - package-ecosystem: "npm"
+    directory: "/examples/typescript-sdk"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "javascript"
+    commit-message:
+      prefix: "deps(npm)"
+
+  # pip (Python SDK example)
+  - package-ecosystem: "pip"
+    directory: "/examples/python-sdk"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit-message:
+      prefix: "deps(pip)"
