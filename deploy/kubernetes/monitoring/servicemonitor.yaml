@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: temporal-profiler
+  labels:
+    app.kubernetes.io/name: temporal-profiler
+    release: prometheus  # Match your Prometheus Operator label selector
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal-profiler
+  endpoints:
+    - port: http-admin
+      path: /metrics
+      interval: 15s
+      scrapeTimeout: 10s
+      honorLabels: true
+  namespaceSelector:
+    any: true

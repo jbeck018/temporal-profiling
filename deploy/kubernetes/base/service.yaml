@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-profiler
+  namespace: temporal-profiler
+  labels:
+    app.kubernetes.io/name: temporal-profiler
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc-proxy
+      port: 7234
+      targetPort: grpc-proxy
+      protocol: TCP
+    - name: http-admin
+      port: 8080
+      targetPort: http-admin
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: temporal-profiler
+---
+# Headless service for gRPC client-side load balancing
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-profiler-headless
+  namespace: temporal-profiler
+  labels:
+    app.kubernetes.io/name: temporal-profiler
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - name: grpc-proxy
+      port: 7234
+      targetPort: grpc-proxy
+  selector:
+    app.kubernetes.io/name: temporal-profiler

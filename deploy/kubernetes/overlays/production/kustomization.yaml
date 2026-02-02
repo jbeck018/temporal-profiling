@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: temporal-profiler-prod
+
+resources:
+  - ../../base
+  - secrets.yaml
+  - hpa.yaml
+  - pdb.yaml
+  - ../../monitoring/servicemonitor.yaml
+  - ../../monitoring/prometheusrule.yaml
+
+namePrefix: prod-
+
+patches:
+  - patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 3
+    target:
+      kind: Deployment
+      name: temporal-profiler
+
+  - patch: |-
+      - op: replace
+        path: /data/slack-enabled
+        value: "true"
+    target:
+      kind: ConfigMap
+      name: temporal-profiler-config
+
+images:
+  - name: ghcr.io/temporal-profiling/temporal-profiler
+    newTag: v1.0.0
+
+replicas:
+  - name: temporal-profiler
+    count: 3
