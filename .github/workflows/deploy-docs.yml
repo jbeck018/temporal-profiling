@@ -1,0 +1,81 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'README.md'
+      - '.github/workflows/deploy-docs.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build documentation site
+        run: |
+          mkdir -p _site
+
+          # Copy documentation
+          cp README.md _site/index.md
+          cp -r docs/* _site/
+
+          # Create simple index.html
+          cat > _site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Temporal Profiler</title>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown.min.css">
+            <style>
+              .markdown-body { max-width: 900px; margin: 0 auto; padding: 20px; }
+            </style>
+          </head>
+          <body class="markdown-body">
+            <h1>Temporal Profiler Documentation</h1>
+            <ul>
+              <li><a href="https://github.com/${{ github.repository }}">GitHub Repository</a></li>
+              <li><a href="https://github.com/${{ github.repository }}/blob/main/README.md">README</a></li>
+              <li><a href="https://github.com/${{ github.repository }}/blob/main/docs/DEPLOYMENT.md">Deployment Guide</a></li>
+            </ul>
+            <h2>Quick Start</h2>
+            <pre><code>docker run -p 7234:7234 -p 8080:8080 \
+            -e TEMPORAL_PROFILER_PROXY_UPSTREAM_ADDR=temporal:7233 \
+            ghcr.io/${{ github.repository }}:latest</code></pre>
+            <p>Then point your Temporal SDK to <code>localhost:7234</code> instead of <code>localhost:7233</code>.</p>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
